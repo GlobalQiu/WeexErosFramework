@@ -301,35 +301,29 @@ public class VersionChecker {
 
     }
 
-
-    /**
+      /**
      * MD5 效验
      */
     private boolean checkZipValidate(File file) {
         if (file.exists()) {
-            byte[] json = FileManager.extractZip(file, "md5.json");
-            if (json == null) return false;
-            try {
-                Md5MapperModel mapper = ManagerFactory.getManagerService(ParseManager.class)
-                        .parseObject(new String(json, "UTF-8"),
-                                Md5MapperModel.class);
-                //校验文件正确性
-                List<Md5MapperModel.Item> lists = mapper.getFilesMd5();
-                // 按照md5值从小到大排列
-                Collections.sort(lists);
-                //所有md5想加得到总的md5
-                String total = "";
-                for (Md5MapperModel.Item item : lists) {
-                    total = total + item.getMd5();
-                }
-                String finalMd5 = Md5Util.getMd5code(total);
-                //比较md5是否正确
-                newVersion = new JsVersionInfoBean(mapper.getJsVersion(), mapper.getAndroid(),
-                        mapper.getTimestamp());
-                return mapper.getJsVersion().equals(finalMd5);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+            String json2 = FileManager.extractZip2(file, "md5.json");
+            Md5MapperModel mapper = ManagerFactory.getManagerService(ParseManager.class)
+                    .parseObject(json2,
+                            Md5MapperModel.class);
+            //校验文件正确性
+            List<Md5MapperModel.Item> lists = mapper.getFilesMd5();
+            // 按照md5值从小到大排列
+            Collections.sort(lists);
+            //所有md5想加得到总的md5
+            String total = "";
+            for (Md5MapperModel.Item item : lists) {
+                total = total + item.getMd5();
             }
+            String finalMd5 = Md5Util.getMd5code(total);
+            //比较md5是否正确
+            newVersion = new JsVersionInfoBean(mapper.getJsVersion(), mapper.getAndroid(),
+                    mapper.getTimestamp());
+            return mapper.getJsVersion().equals(finalMd5);
         }
         return false;
     }
